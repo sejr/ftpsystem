@@ -182,7 +182,7 @@ void add_node(double timeout, int seq_num, int port) {
 	int check = insert_node(&head, node);
 
 	if (check == 0) {
-		fprintf(stdout, COLOR_DEBUG "[TIMER ] " COLOR_RESET ("%s%.2f%s%d\n", "There was an issue adding the node with "
+		fprintf(stdout, COLOR_DEBUG "[TIMER ] " COLOR_RESET "%s%.2f%s%d\n", "There was an issue adding the node with "
 			"timeout: ", timeout, " and seq_num number: ", seq_num);
 	} else {
 		fprintf(stdout, COLOR_DEBUG "[TIMER ] " COLOR_RESET "%s%.2f%s%d%s\n", "Node with timeout: ", timeout, " and seq_num "
