@@ -572,7 +572,7 @@ int main(int argc, char *argv[])
 
 					/* Send NAK */
 					sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n\n", rn);
+					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
 
 				/* Packet is good. Send ACK */
 				} else if ((seq == rn)) {
@@ -616,7 +616,7 @@ int main(int argc, char *argv[])
 
 					/* Send Ack */
 					sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n\n", rn);
+					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
 
 				}
 				/* Catch all. Request last packet again */
@@ -626,7 +626,7 @@ int main(int argc, char *argv[])
 					ackMessage.msg_header = masterAck;
 					ackMessage.ackNo = rn;
 					sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n\n", rn);
+					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
 				}
 
 				/* Bookkeeping/Debugging */
@@ -664,7 +664,7 @@ int sendPacket(int seq, struct node *temp, int troll_sock, struct sockaddr_in tr
 
 	/* Calculate checksum */
 	int chksum = crcFast((char *)&packet, sizeof(packet));
-	printf("Checksum of data: %X\n\n", chksum);
+	fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Checksum of data: %X\n", chksum);
 
 	/* Attach checksum to troll packet */
 	/* This is checksum with chksum zerod out. Must do same on rec end */
