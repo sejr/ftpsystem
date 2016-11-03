@@ -16,8 +16,8 @@ TCPSRC = src/tcpd/tcpd.c
 # Source files for the helper systems, grouped in 'include' directory
 
 ROCKET = include/rocket.c
-BUFFER = include/circularBuffer.c
-AUXLST = include/auxList.c
+BUFFER = include/buffer.c
+AUXLST = include/list.c
 
 # Output executable destinations
 
