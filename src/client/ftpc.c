@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	struct hostent *hp;	      /* host */
 	int ackFlag = 1;
 
-	printf("%s\n\n", "TCP client preparing to send file...");
+	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "%s\n\n", "FTP client initialized successfully.");
 
 	/* initialize socket connection in unix domain */
 	if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0)
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]) {
 
 	/* Send file size in 4 bytes */
 	SEND(sock, &num_bytes, MSS, 0);
-	printf("Sent size: %i bytes\n\n", num_bytes);
+	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "FILE SIZE: %i BYTES\n", num_bytes);
 
 	/* Rec ack */
 	RECV(ackSock, &ackFlag, sizeof(ackFlag), MSG_WAITALL);
@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
 	usleep(1000);
 	/* Send file name in 20 bytes */
 	SEND(sock, file_name, MSS, 0);
-	printf("Sent name: %s\n\n", file_name);
+	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "FILE NAME: %s\n", file_name);
 
 	/* Rec ack */
 	RECV(ackSock, &ackFlag, sizeof(ackFlag), MSG_WAITALL);
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 		usleep(1000);
 	}
 
-	printf("%s\n", "File Sent.");
+	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "%s\n", "FILE SENT SUCCESSFULLY");
 
 	/* Close file and connection */
 	close(fp);

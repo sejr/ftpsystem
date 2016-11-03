@@ -587,7 +587,7 @@ int main(int argc, char *argv[])
                                         /* Add body to circular buffer */
                                         AddToBufferForServer(packet.body);
                                         next = getEnd();
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data to buffer slot: %d\n", current);
+                                        // fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data to buffer slot: %d\n", current);
                                         struct timespec temp_t_2;
                                         insertNode(temp, current, next, 0, packet.bytes_to_read, 0, 0, temp_t_2);
 
@@ -604,7 +604,7 @@ int main(int argc, char *argv[])
                                                 printError("Error forwarding packet.", ERROR_EXIT);
                                         }
 
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data from buffer slot: %d\n", current);
+                                        // fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data from buffer slot: %d\n", current);
 
                                         fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent data to server.\n");
 

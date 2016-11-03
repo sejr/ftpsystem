@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
 		struct stat st = {0};
 		int ackFlag = 1;
 		char pathName[] = "recvd/";
-    	printf("TCP server waiting for remote connection from clients ...\n\n");
+    	fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "FTP server initialized successfully.\n");
 
     	/*initialize socket connection in unix domain*/
     	if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0){
@@ -42,19 +42,19 @@ int main(int argc, char* argv[]) {
 
 		/* get the size of the payload */
 		if (RECV(sock, &fileSize, 4, 0, NULL, NULL) < 4) {
-			printf("%s\n", "Error: The size read returned less than 4");
+			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n", "Error: The size read returned less than 4");
 			exit(1);
 		}
-		printf("Recieved size: %d bytes\n\n", fileSize);
+		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "INCOMING FILE SIZE: %d BYTES\n", fileSize);
 		/* Send ack to tcpd */
 		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0, (struct sockaddr *)&serverAck, sizeof serverAck);
 
 		/* get the name of the file */
 		if (RECV(sock, fileName, sizeof(fileName), 0) < 20) {
-			printf("%s\n", "Error: The name read returned less than 20");
+			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n", "Error: The name read returned less than 20");
 			exit(1);
 		}
-		printf("Received name: %s\n\n", fileName);
+		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "INCOMING FILE NAME: %s\n", fileName);
 		/* Send ack to tcpd */
 		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0, (struct sockaddr *)&serverAck, sizeof serverAck);
 
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
 				fwrite(readBuffer, 1, amtRead, output);
 		}
 
-		printf("Recieved file.\n");
+		printf("RECEIVED FILE SUCCESSFULLY.\n");
 
 		/* close the output file and connections */
 		close(sock);
