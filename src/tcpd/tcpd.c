@@ -1,38 +1,72 @@
+/******************************************************************************/
+/*  tcpd.c                                                                    */
+/*  ------                                                                    */
+/*  TCPD is middleware for our FTP client and server. Basically, since we are */
+/*  reverting to UDP in the cli/srv, we implement this daemon to make the     */
+/*  transfer reliable.                                                        */
+/******************************************************************************/
+
+/* HEADERS AND DEFINITIONS ****************************************************/
+
 #include "../../include/rtool.h"
 #include "../../include/crc.c"
 #include "../../include/crc.h"
 
-/* for lint */
-void bzero(), bcopy(), exit(), perror();
-double atof();
 #define Printf if (!qflag) (void)printf
-	#define Fprintf (void)fprintf
+#define Fprintf (void)fprintf
 
-/* main */
+/* HOUSEKEEPING ***************************************************************/
+
+void printUsage()
+{
+  printf("\nUSAGE:\n"); /* Pulled straight from the README */
+  printf("    tcpd --c        to run on client side\n");
+  printf("    tcpd --s        to run on server side.\n\n");
+}
+
+/* Function Declarations ******************************************************/
+
+void    bzero(), bcopy(), exit(), perror();
+double  atof();
+
+/* BEGIN tcpd.c ***************************************************************/
+
 int main(int argc, char *argv[])
 {
-	/* Validate initial args */
-	if (argc < 2) {
-		fprintf(stderr, "%s\n", "There are not enough arguments.");
-		exit(1);
-	}
 
-	/* Run on client side */
+    // Validating arguments
+    if (argc != 2)
+    {
+        printUsage();
+        exit(-1);
+    }
+
+    // If user has called TCPD on client side:
 	if (strncmp(argv[1], "--c", 3) == 0) {
-		/* Validate input args */
-		if (argc < 1) {
-			fprintf(stderr, "%s\n", "There are not enough arguments. Proper use: tcpd flag");
-			exit(1);
-		}
 
-		/* greeting banner */
-		printf("%s\n\n", "Running on client machine...");
+        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "%s\n\n",
+                "Client-side tcpd initialized successfully.");
 
-		/* Addresses */
-		struct sockaddr_in trolladdr, destaddr, localaddr, clientaddr, tcpdaddr, clientack, masterAck, ackAddr, sin_addr, timer_addr, driver_addr;
+		// Lots of addresses
+		struct sockaddr_in
+               trolladdr,
+               destaddr,
+               localaddr,
+               clientaddr,
+               tcpdaddr,
+               clientack,
+               masterAck,
+               ackAddr,
+               sin_addr,
+               timer_addr,
+               driver_addr;
 
 		/* Sockets */
-		int troll_sock, local_sock, tcpd_sock, ackSock, timer_sock;
+		int troll_sock,
+            local_sock,
+            tcpd_sock,
+            ackSock,
+            timer_sock;
 
 		/* Variables */
 		MyMessage message, ackMessage; 			        /* Packets sent to troll process */
@@ -201,11 +235,11 @@ int main(int argc, char *argv[])
 
 					if (amtFromClient > 0) {
 
-						printf("Received new data from client.\n");
+						fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Received new data from client.\n");
 
 						/* Copy from local buffer to circular buffer */
 						current = AddToBuffer(buffer, temp);// Add to c buffer
-						printf("Copied data from ftpc to buffer slot: %d\n", current);
+						fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data from ftpc to buffer slot: %d\n", current);
 
 						/* Update aux list info */
 						struct timespec temp_t;
@@ -262,7 +296,7 @@ int main(int argc, char *argv[])
 						/* Successful ack. */
 						if (ack == (sb+1)) {
 
-							printf("Successful acknowledgement recieved: %d\n", ack);
+							fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Successful acknowledgement recieved: %d\n", ack);
 
 							/* Find packet with matching ack and set ack flag to 1 */
 							struct node *ptr;
@@ -313,20 +347,20 @@ int main(int argc, char *argv[])
 								}
 
 								/* print info */
-								//printf("Time Elapsed: %f\n", elapsed);
-								//printf("RTO: %.9f\n", rto);
-								printf("RTT: %.9f\n", est_rtt);
-								//printf("VAR: %.9f\n\n", est_var);
+								//fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Time Elapsed: %f\n", elapsed);
+								//fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "RTO: %.9f\n", rto);
+								fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "RTT: %.9f\n", est_rtt);
+								//fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "VAR: %.9f\n\n", est_var);
 
 								}
 								/* Catch null node */
 								else {
-									//printf("Acked node does not exist.\n");
+									//fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Acked node does not exist.\n");
 								}
 
 						/* NAK recieved. Keep send index at current spot. Redundant assignment for clarity */
 						} else {
-							printf("Unuccessful acknowledgement recieved: %d\n", ack);
+							fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Unuccessful acknowledgement recieved: %d\n", ack);
 							sb = sb;
 						}
 					}
@@ -349,8 +383,8 @@ int main(int argc, char *argv[])
 						if (buffer.seq_num < sn && buffer.seq_num > sb) {
 
 							/* Create and send packet */
-							printf("Packet %d timed out.\n", buffer.seq_num);
-							printf("Resending packet: %d\n", buffer.seq_num);
+							fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Packet %d timed out.\n", buffer.seq_num);
+							fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Resending packet: %d\n", buffer.seq_num);
 							amtToTroll = sendPacket(buffer.seq_num, temp, troll_sock, trolladdr, destaddr);
 
 							/* Start timer with rto timeout for packet */
@@ -370,7 +404,7 @@ int main(int argc, char *argv[])
 				if (sb < sn) {
 
 					/* Create and send packet */
-					printf("Sending packet: %d\n", sb);
+					fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sending packet: %d\n", sb);
 					amtToTroll = sendPacket(sb, temp, troll_sock, trolladdr, destaddr);
 
 					/* Start timer with rto timeout*/
@@ -392,14 +426,8 @@ int main(int argc, char *argv[])
 
     } else if (strncmp(argv[1], "--s", 3) == 0) {
 
-		/* Validate args */
-		if (argc < 1) {
-			fprintf(stderr, "%s\n", "There are not enough arguments. Proper use: tcpd flag");
-			exit(1);
-		}
-
-		/* greeting banner */
-		printf("%s\n\n", "Running on server machine...");
+        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "%s\n\n",
+                "Server-side tcpd initialized successfully.");
 
 		/* Addresses */
 		struct sockaddr_in trolladdr, localaddr, serveraddr, serverack, masterAck;
@@ -425,7 +453,7 @@ int main(int argc, char *argv[])
 		/* SOCKET FROM TROLL */
 		/* This is the socket to recieve from the troll running on the client machine */
 		if ((troll_sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-			perror("fromtroll socket");
+			printError("Error in troll socket.", ERROR_EXIT);
 			exit(1);
 		}
 		bzero((char *)&localaddr, sizeof localaddr);
@@ -433,21 +461,21 @@ int main(int argc, char *argv[])
 		localaddr.sin_addr.s_addr = INADDR_ANY; /* let the kernel fill this in */
 		localaddr.sin_port = htons(TCPDSERVERPORT);
 		if (bind(troll_sock, (struct sockaddr *)&localaddr, sizeof localaddr) < 0) {
-			perror("client bind");
+			printError("Binding error.", ERROR_EXIT);
 			exit(1);
 		}
 
 		/* SOCKET TO SERVER */
 		/* This creates a socket to communicate with the local troll process */
 		if ((local_sock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-			perror("client socket");
+			printError("Error creating socket.", ERROR_EXIT);
 			exit(1);
 		}
 
 		/* FTPS ACK SOCKET */
 		/* This creates a socket to communicate with the local ftps process */
 		if ((ackSock = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-			perror("ackSock socket");
+			printError("Error creating socket.", ERROR_EXIT);
 			exit(1);
 		}
 		bzero((char *)&serverack, sizeof serverack);
@@ -455,7 +483,7 @@ int main(int argc, char *argv[])
 		serverack.sin_addr.s_addr = inet_addr(BETA); /* let the kernel fill this in */
 		serverack.sin_port = htons(10021);
 		if (bind(ackSock, (struct sockaddr *)&serverack, sizeof serverack) < 0) {
-			perror("ack bind");
+			printError("Error binding ack.", ERROR_EXIT);
 			exit(1);
 		}
 
@@ -505,7 +533,7 @@ int main(int argc, char *argv[])
 					amtFromTcpd = recvfrom(troll_sock, (char *)&message, sizeof message, MSG_WAITALL,
 					(struct sockaddr *)&trolladdr, &len);
 					if (amtFromTcpd < 0) {
-						perror("fromtroll recvfrom");
+						printError("Error receiving packet.", ERROR_EXIT);
 						exit(1);
 					}
 
@@ -559,7 +587,7 @@ int main(int argc, char *argv[])
 					/* Forward packet body to server */
 					amtToServer = sendto(local_sock, (char *)GetFromBuffer(), bytesToSend, 0, (struct sockaddr *)&destaddr, sizeof destaddr);
 					if (amtToServer < 0) {
-						perror("totroll sendto");
+						printError("Error forwarding packet.", ERROR_EXIT);
 					}
 
 					printf("Copied data from buffer slot: %d\n", current);
@@ -660,8 +688,7 @@ void starttimer(double timeout, int seq_num, int sock, int ret_port, struct sock
 	if(sendto(sock, &send_msg, sizeof(send_msg), 0,
 		(struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
 
-		perror("There was an error sending to the socket in the driver "
-			"(starttimer)");
+		printError("Error sending to socket in driver.", ERROR_EXIT);
 		exit(1);
 	}
 }

@@ -1,5 +1,5 @@
-#ifndef HEADER_H_  /* Include guard */
-#define HEADER_H_
+#ifndef RTOOL_H_
+#define RTOOL_H_
 
 #include <stdio.h>
 #include <string.h>
@@ -34,29 +34,40 @@
 #define TIMER_PORT 9090
 #define DRIVER_PORT 8908
 
+#define COLOR_ERROR "\e[1m\x1b[31m"
+#define COLOR_DEBUG "\e[1m\x1b[34m"
+#define COLOR_RESET "\x1b[0m"
+
+void printError(char errMsg[], int errorCode)
+{
+    /* COLORS defined in header; makes error message pop more */
+    fprintf(stderr, COLOR_ERROR "ERROR " COLOR_RESET "%s\n", errMsg);
+    exit(errorCode); /* Exit with failure */
+}
+
 /* Structs */
 
 typedef struct send {
-	int flag;
-	int seq_num;
-	double time;
+        int flag;
+        int seq_num;
+        double time;
 } send_msg_t;
 
 /* TCP Header structure as per RFC 793 */
 typedef struct Packet {
- u_short th_sport;  /* source port */
- u_short th_dport;  /* destination port */
- int seq;   /* sequence number */
- int ack;   /* acknowledgement number */
+        u_short th_sport; /* source port */
+        u_short th_dport; /* destination port */
+        int seq; /* sequence number */
+        int ack; /* acknowledgement number */
 #if BYTE_ORDER == LITTLE_ENDIAN
- u_int th_x2:4,  /* (unused) */
-  th_off:4;  /* data offset */
+        u_int th_x2 : 4, /* (unused) */
+              th_off : 4; /* data offset */
 #endif
 #if BYTE_ORDER == BIG_ENDIAN
- u_int th_off:4,  /* data offset */
-  th_x2:4;  /* (unused) */
+        u_int th_off : 4, /* data offset */
+              th_x2 : 4; /* (unused) */
 #endif
- u_char th_flags;
+        u_char th_flags;
 #define TH_FIN 0x01
 #define TH_SYN 0x02
 #define TH_RST 0x04
@@ -67,44 +78,44 @@ typedef struct Packet {
 #define TH_CWR 0x80
 #define TH_FLAGS (TH_FIN|TH_SYN|TH_RST|TH_ACK|TH_URG|TH_ECE|TH_CWR)
 
- u_short th_win;   /* window */
- u_short th_sum;   /* checksum */
- u_short th_urp;   /* urgent pointer */
- /* data */
- char body[MSS];
- int bytes_to_read;
- int chksum;
- int packNo;
- int startNo;
- int ackType;
+        u_short th_win; /* window */
+        u_short th_sum; /* checksum */
+        u_short th_urp; /* urgent pointer */
+        /* data */
+        char body[MSS];
+        int bytes_to_read;
+        int chksum;
+        int packNo;
+        int startNo;
+        int ackType;
 } Packet;
 
 /* tcpd to troll packet */
 typedef struct MyMessage {
-	struct sockaddr_in msg_header;
-	struct Packet msg_pack;
-	int ackNo;
+        struct sockaddr_in msg_header;
+        struct Packet msg_pack;
+        int ackNo;
 } MyMessage;
 
 /* aux List node */
 struct node
 {
-	int start; /* Consider this the node start. Corresponds with MSS chunk in cBuffer 0-64000 */
-	int nextB; /* Next chunk index, optional */
-	int pack;  /* Packet No. */
-	int bytes; /* Num of bytes read in from client */
-	int seq;   /* Sequence number */
-	int ack;   /* acknowledgement flag (0 = no, 1 = yes) */
-	struct timespec time;/* Time */
-	struct node *next;
+        int start; /* Consider this the node start. Corresponds with MSS chunk in cBuffer 0-64000 */
+        int nextB; /* Next chunk index, optional */
+        int pack; /* Packet No. */
+        int bytes; /* Num of bytes read in from client */
+        int seq; /* Sequence number */
+        int ack; /* acknowledgement flag (0 = no, 1 = yes) */
+        struct timespec time;/* Time */
+        struct node *next;
 };
 
 /* timer message */
 typedef struct message {
-	int type;
-	int p_num;
-	double time;
-	int ret_port;
+        int type;
+        int p_num;
+        double time;
+        int ret_port;
 } message_t;
 
 /* aux list prototypes */
