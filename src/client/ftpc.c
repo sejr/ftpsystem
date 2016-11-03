@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 	/* Rec ack */
 	RECV(ackSock, &ackFlag, sizeof(ackFlag), MSG_WAITALL);
 	//printf("Ack Recieved: %d\n\n", ackFlag);
-	usleep(1000);
+	// usleep(1000);
 	/* Send file name in 20 bytes */
 	SEND(sock, file_name, MSS, 0);
 	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "FILE NAME: %s\n", file_name);
@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
 	/* Rec ack */
 	RECV(ackSock, &ackFlag, sizeof(ackFlag), MSG_WAITALL);
 	//printf("Ack Recieved: %d\n\n", ackFlag);
-	usleep(1000);
+	// usleep(1000);
 	bzero(buf, sizeof(buf));
 
 	while((num_read = fread(buf,1,sizeof(buf), fp)) > 0)
@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
 		num_sent_total += num_sent;
 
 		/* added to avoid overloading client side tcpd when sending large files */
-		usleep(1000);
+		//usleep(1000);
 	}
 
 	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "%s\n", "FILE SENT SUCCESSFULLY");
