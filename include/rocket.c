@@ -1,7 +1,5 @@
 // rocket - tcp/udp helper fxns
 
-#include "rtool.h"
-
 /* Prototypes for each function */
 ssize_t SEND(int socket, const void* buffer, size_t length, int flags);
 ssize_t RECV(int socket, void* buffer, size_t length, int flags);
