@@ -38,6 +38,13 @@
 #define COLOR_DEBUG "\e[1m\x1b[34m"
 #define COLOR_RESET "\x1b[0m"
 
+#define ERROR_EXIT -1
+#define ERROR_UNKNOWN_HOST -2
+#define ERROR_OPENING_SOCKET -3
+#define ERROR_CONNECTING_SOCKET -4
+#define ERROR_WRITING_STRM_SOCKET -5
+#define ERROR_READING_STRM_SOCKET -6
+
 /* Structs */
 
 typedef struct send {
