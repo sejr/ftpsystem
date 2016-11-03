@@ -24,6 +24,13 @@ void printUsage()
   printf("    tcpd --s        to run on server side.\n\n");
 }
 
+void printError(char errMsg[], int errorCode)
+{
+    /* COLORS defined in header; makes error message pop more */
+    fprintf(stderr, COLOR_ERROR "ERROR " COLOR_RESET "%s\n", errMsg);
+    exit(errorCode); /* Exit with failure */
+}
+
 /* Function Declarations ******************************************************/
 
 void    bzero(), bcopy(), exit(), perror();
