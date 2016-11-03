@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	struct hostent *hp;	      /* host */
 	int ackFlag = 1;
 
-	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "%s\n\n", "FTP client initialized successfully.");
+	fprintf(stdout, COLOR_DEBUG "[ CLIENT ] " COLOR_RESET "%s\n", "FTP client initialized successfully.");
 
 	/* initialize socket connection in unix domain */
 	if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0)

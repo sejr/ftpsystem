@@ -246,11 +246,11 @@ int main(int argc, char *argv[])
 
                                         if (amtFromClient > 0) {
 
-                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Received new data from client.\n");
+                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "NEW DATA FROM CLIENT!\n");
 
                                                 /* Copy from local buffer to circular buffer */
                                                 current = AddToBuffer(buffer, temp);// Add to c buffer
-                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data from ftpc to buffer slot: %d\n", current);
+                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "DATA -> BUFFER SLOT: %d\n", current);
 
                                                 /* Update aux list info */
                                                 struct timespec temp_t;
@@ -307,7 +307,7 @@ int main(int argc, char *argv[])
                                                 /* Successful ack. */
                                                 if (ack == (sb+1)) {
 
-                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Successful acknowledgement recieved: %d\n", ack);
+                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "ACK RECEIVED: # %d\n", ack);
 
                                                         /* Find packet with matching ack and set ack flag to 1 */
                                                         struct node *ptr;
@@ -373,7 +373,7 @@ int main(int argc, char *argv[])
                                                 } else {
                                                         if (ack < sn)
                                                         {
-                                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Unuccessful acknowledgement recieved: %d\n", ack);
+                                                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "NAK RECEIVED: # %d\n", ack);
                                                         }
                                                         sb = sb;
                                                 }
@@ -397,8 +397,8 @@ int main(int argc, char *argv[])
                                                 if (buffer.seq_num < sn && buffer.seq_num >= sb) {
 
                                                         /* Create and send packet */
-                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Packet %d timed out.\n", buffer.seq_num);
-                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Resending packet: %d\n", buffer.seq_num);
+                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "PACKET SEQ # %d TIMED OUT.\n", buffer.seq_num);
+                                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "RETRANSMITTING SEQ # %d\n", buffer.seq_num);
                                                         amtToTroll = sendPacket(buffer.seq_num, temp, troll_sock, trolladdr, destaddr);
 
                                                         /* Start timer with rto timeout for packet */
@@ -418,7 +418,7 @@ int main(int argc, char *argv[])
                                 if (sb < sn) {
 
                                         /* Create and send packet */
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sending packet: %d\n", sb);
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "TRANSMITTING PACKET %d\n", sb);
                                         amtToTroll = sendPacket(sb, temp, troll_sock, trolladdr, destaddr);
 
                                         /* Start timer with rto timeout*/
@@ -551,7 +551,7 @@ int main(int argc, char *argv[])
                                         exit(1);
                                 }
 
-                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Recieved data from troll.\n");
+                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "NEW DATA FROM TROLL!\n");
 
                                 /* Copy packet locally */
                                 bcopy(&message.msg_pack, &packet, sizeof(packet));
@@ -564,14 +564,14 @@ int main(int argc, char *argv[])
 
                                 /* Calculate checksum of packet recieved */
                                 chksum = crcFast((char *)&packet, sizeof(packet));
-                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Checksum of data: %X\n", chksum);
+                                fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "CRC CHECKSUM: %X\n", chksum);
 
                                 /*Get packet sequence*/
                                 int seq = packet.seq;
 
                                 /* Compare expected checksum to one caluclated above. Send NAK. */
                                 if ((chksum != recv_chksum)) {
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Checksum error: Expected: %X Actual: %X\n", recv_chksum, chksum);
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "CRC ERROR! Expected: %X Actual: %X\n", recv_chksum, chksum);
 
                                         /* Prepare troll wrapper */
                                         ackMessage.msg_header = masterAck;
@@ -579,7 +579,7 @@ int main(int argc, char *argv[])
 
                                         /* Send NAK */
                                         sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "ACK TRANSMITTED TO CLIENT: %d\n", rn);
 
                                         /* Packet is good. Send ACK */
                                 } else if ((seq == rn)) {
@@ -606,11 +606,11 @@ int main(int argc, char *argv[])
 
                                         // fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Copied data from buffer slot: %d\n", current);
 
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent data to server.\n");
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "DATA FORWARDED TO FTP SERVER\n");
 
                                         /* Get ack from ftps */
                                         recvfrom(ackSock, &ftpsAck, sizeof(ftpsAck), MSG_WAITALL, NULL, NULL);
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Ack from ftps\n");
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "FTP SERVER ACK RECEIVED\n");
 
                                         /* Increase expeceted seq no */
                                         rn = rn + 1;
@@ -623,7 +623,7 @@ int main(int argc, char *argv[])
 
                                         /* Send Ack */
                                         sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "TRANSMITTED ACK %d\n", rn);
 
                                 }
                                 /* Catch all. Request last packet again */
@@ -633,7 +633,7 @@ int main(int argc, char *argv[])
                                         ackMessage.msg_header = masterAck;
                                         ackMessage.ackNo = rn;
                                         sendto(troll_sock, (char *)&ackMessage, sizeof(ackMessage), 0, (struct sockaddr *)&servertrolladdr, sizeof servertrolladdr);
-                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Sent ack: %d\n", rn);
+                                        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "TRANSMITTED ACK %d\n", rn);
                                 }
 
                                 /* Bookkeeping/Debugging */
@@ -671,7 +671,7 @@ int sendPacket(int seq, struct node *temp, int troll_sock, struct sockaddr_in tr
 
         /* Calculate checksum */
         int chksum = crcFast((char *)&packet, sizeof(packet));
-        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "Checksum of data: %X\n", chksum);
+        fprintf(stdout, COLOR_DEBUG "[ TCPD ] " COLOR_RESET "CRC CHECKSUM: %X\n", chksum);
 
         /* Attach checksum to troll packet */
         /* This is checksum with chksum zerod out. Must do same on rec end */

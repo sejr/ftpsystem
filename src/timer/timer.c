@@ -33,19 +33,13 @@ void print_full_list(timer_node_t* head);
 timer_node_t* create_node(double time, int seq_num, int port);
 void destroy_node(timer_node_t* node);
 
-
-
 /* This pointer points to the head of the delta list */
 timer_node_t* head = NULL;
-
-
 
 /* This method deallocates the memory held by a node */
 void destroy_node(timer_node_t* node) {
 	free(node);
 }
-
-
 
 /* This method creates a new node for our linked list with the supplied criteria.
    It returns a pointer to the newly created node */
@@ -63,16 +57,14 @@ timer_node_t* create_node(double time, int seq_num, int port) {
 	return node;
 }
 
-
-
 /* This method prints out the linked list in its entirety */
 void print_full_list(timer_node_t* list) {
 	if (NULL == list) {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "The delta timer list is empty");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "DELTA TIMER IS EMPTY");
 	} else {
 		while(NULL != list) {
-			fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d%s\n", "NODE:: time: ", list->time, " seq_num: ",
-				list->seq_num," ---> ");
+			fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d%s\n", "TIME @ ", list->time, " SEQ # ",
+				list->seq_num,"");
 			list = list->next;
 		}
 	}
@@ -131,7 +123,7 @@ int insert_node(timer_node_t** head, timer_node_t* node) {
 int remove_node(int del_val, timer_node_t** head) {
 	//The list is empty
 	if (NULL == *head) {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "ERROR: The list is empty. Cannot delete specified node.");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "CAN'T DELETE; LIST EMPTY");
 		return 0;
 	}
 	timer_node_t* trash = NULL;
@@ -156,8 +148,8 @@ int remove_node(int del_val, timer_node_t** head) {
 	}
 	//The node wasn't found
 	if (NULL == tracker) {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "ERROR: The node with seq_num number: ", del_val,
-			" was never found. Failed to delete.");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "CAN'T DELETE NODE W/ SEQ # ", del_val,
+			". NODE NOT FOUND");
 		return 0;
 	}
 
@@ -182,14 +174,14 @@ void add_node(double timeout, int seq_num, int port) {
 	int check = insert_node(&head, node);
 
 	if (check == 0) {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d\n", "There was an issue adding the node with "
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d\n", "ERROR ADDING NODE "
 			"timeout: ", timeout, " and seq_num number: ", seq_num);
 	} else {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d%s\n", "Node with timeout: ", timeout, " and seq_num "
-			"number: ", seq_num, " added successfully");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d%s\n", "NODE EXPIRING AT ", timeout, ", SEQ # "
+			"", seq_num, " ADDED SUCCESSFULLY");
 	}
 
-	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "State of the delta timer:");
+	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "DELTA TIMER STATUS");
 	print_full_list(head);
 }
 
@@ -201,20 +193,20 @@ void delete_node(int seq_num) {
 	int check = remove_node(seq_num, &head);
 
 	if (check == 0) {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "There was an issue deleting the node with "
-			"seq_num number: ", seq_num, ". See above message.");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "ERROR DELETING NODE SEQ # "
+			"", seq_num, ". SEE MESSAGE");
 	} else {
-		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "Node with seq_num number: ", seq_num, " deleted "
-			"successfully");
+		fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "NODE @ SEQ # ", seq_num, " DELETED "
+			"SUCCESSFULLY");
 	}
 
-	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "State of the delta timer:");
+	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "DELTA TIMER STATUS");
 	print_full_list(head);
 
 }
 
 int main(int argc, char *argv[]) {
-	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "Timer process booting up...\n\n");
+	fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "Delta timer initialized successfully.\n");
 
 	/* Create a socket for the timer to listen on */
 	int sock;
@@ -303,15 +295,15 @@ int main(int argc, char *argv[]) {
 
 			/*HEAD NODE HAS TIMED OUT*/
 			while (NULL != head && head->time <= 0) {
-				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "seq_num number: ", head->seq_num, " has timed out.");
+				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d%s\n", "SEQ # ", head->seq_num, " TIMED OUT!");
 
 				//timeout_response.sin_port = htons(head->port);
 				send_msg.flag = 2;
 				send_msg.seq_num = head->seq_num;
 
 				remove_node(head->seq_num, &head);
-				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "Timed out node removed.");
-				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "Status of the delta timer list:");
+				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "NODE TIMED OUT");
+				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "DELTA TIMER STATUS");
 				print_full_list(head);
 
 
@@ -328,14 +320,14 @@ int main(int argc, char *argv[]) {
 				exit(1);
 			}
 			if (recv_msg.type == 0) {
-				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d\n", "Received add request ", recv_msg.time, ", ", recv_msg.seq_num);
+				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%.2f%s%d\n", "NEW ADD REQ: ", recv_msg.time, ", ", recv_msg.seq_num);
 				add_node(recv_msg.time, recv_msg.seq_num, recv_msg.port);
 			} else if (recv_msg.type == 1) {
-				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d\n", "Received delete request ", recv_msg.seq_num);
+				fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s%d\n", "NEW DELETE REQ: ", recv_msg.seq_num);
 				delete_node(recv_msg.seq_num);
 			}
 			bzero((char*)&recv_msg, sizeof(recv_msg));
-			fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "Just serviced message");
+			// fprintf(stdout, COLOR_DEBUG "[ TIMER ] " COLOR_RESET "%s\n", "TIMER ");
 		}
 
 	}//end for
