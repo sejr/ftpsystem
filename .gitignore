@@ -1,6 +1,9 @@
 # For working on macOS
 .DS_Store
 
+# Build directory
+build/*
+
 # Object files
 *.o
 *.ko
