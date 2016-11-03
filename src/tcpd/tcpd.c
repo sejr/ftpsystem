@@ -12,7 +12,7 @@ double atof();
 int main(int argc, char *argv[])
 {
 	/* Validate initial args */
-	if (argc < 1) {
+	if (argc < 2) {
 		fprintf(stderr, "%s\n", "There are not enough arguments.");
 		exit(1);
 	}
