@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* Run on client side */
-	if (atoi(argv[1]) == 1) {
+	if (argv[1] == "--c") {
 		/* Validate input args */
 		if (argc < 1) {
 			fprintf(stderr, "%s\n", "There are not enough arguments. Proper use: tcpd flag");
@@ -390,7 +390,7 @@ int main(int argc, char *argv[])
 
 	/* Run on server side */
 
-	} else if (atoi(argv[1]) == 0) {
+    } else if (argv[1] == "--s") {
 
 		/* Validate args */
 		if (argc < 1) {

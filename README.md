@@ -57,13 +57,13 @@ communication between the FTP client and server.
 Client-side TCPD
 
 ```
-$ tcpd 1
+$ tcpd --c
 ```
 
 Server-side TCPD
 
 ```
-$ tcpd 0
+$ tcpd --s
 ```
 
 ### Delta Timer (timer)
