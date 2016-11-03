@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
     	char readBuffer[MSS] = {0};
 		struct stat st = {0};
 		int ackFlag = 1;
-		char pathName[] = "output/";
+		char pathName[] = "recvd/";
     	fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "FTP server initialized successfully.\n");
 
     	/*initialize socket connection in unix domain*/
