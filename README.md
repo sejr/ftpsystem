@@ -7,21 +7,21 @@ and can be used with Troll to simulate volatile network conditions.
 ## System Diagram
 
 
-               +--------+                          +--------+
-               | ftpc   |                          | ftps   |
-               |--------|                          |--------|
-               | rocket |                          | rocket |
-               +--A--+--+                          +--A--|--+
-                  |  |                                |  |
-           +------|--|------+                  +------|--|------+
-           |   +--|--V--+   |                  |   +--|--V--+   |
-           |   |  tcpd  |   |                  |   |  tcpd  |   |
-           |   +----|---+   |                  |   +----|---+   |
-           |   +----V---+   |                  |   +----V---+   |
-           |   | troll  |<------------------------>| troll  |   |
-           |   +--------+   |                  |   +--------+   |
-           | CLIENT MACHINE |                  | SERVER MACHINE |
-           +----------------+                  +----------------+
+                           +--------+                          +--------+
+                           | ftpc   |                          | ftps   |
+                           |--------|                          |--------|
+                           | rocket |                          | rocket |
+                           +--A--+--+                          +--A--|--+
+                              |  |                                |  |
+                       +------|--|------+                  +------|--|------+
+                       |   +--|--V--+   |                  |   +--|--V--+   |
+                       |   |  tcpd  |   |                  |   |  tcpd  |   |
+                       |   +----|---+   |                  |   +----|---+   |
+                       |   +----V---+   |                  |   +----V---+   |
+                       |   | troll  |<------------------------>| troll  |   |
+                       |   +--------+   |                  |   +--------+   |
+                       | CLIENT MACHINE |                  | SERVER MACHINE |
+                       +----------------+                  +----------------+
 
 ## Subsystem Descriptions
 
@@ -35,7 +35,7 @@ The client is utilized by a user to transmit an input file across a network.
 #### Usage
 
 ```
-$ client <file_path>
+**$ client** <file_path>
 ```
 
 ### Server (ftps)
@@ -43,7 +43,7 @@ $ client <file_path>
 The server receives an input file from the client and stores it in a directory.
 
 ```
-$ server
+**$ server**
 ```
 
 ### TCP Daemon (tcpd)
@@ -57,13 +57,13 @@ communication between the FTP client and server.
 Client-side TCPD
 
 ```
-$ tcpd 1
+**$ tcpd** 1
 ```
 
 Server-side TCPD
 
 ```
-$ tcpd 0
+**$ tcpd** 0
 ```
 
 ### Delta Timer (timer)
