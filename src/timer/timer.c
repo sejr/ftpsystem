@@ -240,6 +240,7 @@ int main(int argc, char *argv[]) {
 	bzero((char *)&timeout_response, sizeof timeout_response);
 	timeout_response.sin_family = AF_INET;
 	timeout_response.sin_addr.s_addr = inet_addr(ETA);
+    timeout_response.sin_port = htons(8908);
 	memset(&(sin_addr.sin_zero), '\0', 8);
 
     //The definition of the message received from the driver
@@ -257,6 +258,7 @@ int main(int argc, char *argv[]) {
     typedef struct send {
     	int flag;
     	int seq_num;
+        double time;
     } send_msg_t;
 
 	send_msg_t send_msg;
@@ -303,7 +305,7 @@ int main(int argc, char *argv[]) {
 			while (NULL != head && head->time <= 0) {
 				fprintf(stdout, COLOR_DEBUG "[TIMER ] " COLOR_RESET "%s%d%s\n", "seq_num number: ", head->seq_num, " has timed out.");
 
-				timeout_response.sin_port = htons(head->port);
+				//timeout_response.sin_port = htons(head->port);
 				send_msg.flag = 2;
 				send_msg.seq_num = head->seq_num;
 
