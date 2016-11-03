@@ -38,6 +38,13 @@
 #define COLOR_DEBUG "\e[1m\x1b[34m"
 #define COLOR_RESET "\x1b[0m"
 
+void printError(char errMsg[], int errorCode)
+{
+    /* COLORS defined in header; makes error message pop more */
+    fprintf(stderr, COLOR_ERROR "ERROR " COLOR_RESET "%s\n", errMsg);
+    exit(errorCode); /* Exit with failure */
+}
+
 /* Structs */
 
 typedef struct send {
