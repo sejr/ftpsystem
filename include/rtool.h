@@ -21,7 +21,7 @@
 
 /* Constants */
 #define MSS 1000
-#define LOCALPORT 9999
+#define LOCALPORT 9797
 #define LOCALADDRESS "127.0.0.1"
 #define ETA "164.107.113.23"
 #define BETA "164.107.113.18"
