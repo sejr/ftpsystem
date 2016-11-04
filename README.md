@@ -6,22 +6,7 @@ and can be used with Troll to simulate volatile network conditions.
 
 ## System Diagram
 
-
-                           +--------+                          +--------+
-                           | ftpc   |                          | ftps   |
-                           |--------|                          |--------|
-                           | rocket |                          | rocket |
-                           +--A--+--+                          +--A--|--+
-                              |  |                                |  |
-                       +------|--|------+                  +------|--|------+
-                       |   +--|--V--+   |                  |   +--|--V--+   |
-                       |   |  tcpd  |   |                  |   |  tcpd  |   |
-                       |   +----|---+   |                  |   +----|---+   |
-                       |   +----V---+   |                  |   +----V---+   |
-                       |   | troll  |<------------------------>| troll  |   |
-                       |   +--------+   |                  |   +--------+   |
-                       | CLIENT MACHINE |                  | SERVER MACHINE |
-                       +----------------+                  +----------------+
+![](http://i.imgur.com/jA0gk01.png)
 
 ## Subsystem Descriptions
 

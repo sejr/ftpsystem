@@ -1,9 +1,19 @@
+// list.c
+
+/* INCLUDES *******************************************************************/
+
 #include "rtool.h"
 
-/* Inserts a new node to the linked list that holds information about a MSS chunck of cBuffer */
-/* Start should correspond with the start index of the array element */
-/* Searches to see if node at start address exists and if so updates it's properties. O/w a new node is created. */
-void insertNode(struct node *ptr, int start, int nextB, int pack, int bytes, int seq, int ack, struct timespec time)
+/* METHODS ********************************************************************/
+
+void insertNode(struct node *ptr,
+    int start,
+    int nextB,
+    int pack,
+    int bytes,
+    int seq,
+    int ack,
+    struct timespec time)
 {
         struct node* exist_node = (struct node *)malloc(sizeof(struct node));
         exist_node = findNode(ptr, start);
@@ -14,11 +24,8 @@ void insertNode(struct node *ptr, int start, int nextB, int pack, int bytes, int
                 {
                         ptr = ptr->next;
                 }
-                /* Allocate memory for the new node and put start in it.*/
                 ptr->next = (struct node *)malloc(sizeof(struct node));
                 ptr = ptr->next;
-
-                /* Fill contents */
                 ptr->start = start;
                 ptr->nextB = nextB;
                 ptr->pack = pack;
@@ -26,10 +33,8 @@ void insertNode(struct node *ptr, int start, int nextB, int pack, int bytes, int
                 ptr->seq = seq;
                 ptr->time = time;
                 ptr->ack = ack;
-
-                /* point to end */
                 ptr->next = NULL;
-        } else { /* Node exists so reassign properties */
+        } else {
                 exist_node->pack = pack;
                 exist_node->bytes = bytes;
                 exist_node->seq = seq;
@@ -38,7 +43,7 @@ void insertNode(struct node *ptr, int start, int nextB, int pack, int bytes, int
         }
 }
 
-/* Deletes node with a specific start index */
+// Delete node with index
 void deleteNode(struct node *ptr, int start)
 {
         while(ptr->next!=NULL && (ptr->next)->start != start)
@@ -50,23 +55,17 @@ void deleteNode(struct node *ptr, int start)
                 printf("Element %d is not present in the list\n",start);
                 return;
         }
-
         struct node *temp;
         temp = ptr->next;
-
         ptr->next = temp->next;
-
         free(temp);
-
         return;
 }
 
-/* Finds and returns node with specific start value related to its position in the circular buffer */
-/* Does not remove node */
+// Finds and returns node
 struct node *findNode(struct node *ptr, int start)
 {
         ptr = ptr->next;
-
         while(ptr!=NULL)
         {
                 if(ptr->start == start)
@@ -78,15 +77,12 @@ struct node *findNode(struct node *ptr, int start)
         return NULL;
 }
 
-/* Finds and returns node with specific packet seqeunce value */
-/* Does not remove node */
+// Finds node with seq #
 struct node *findNodeBySeq(struct node *ptr, int seq)
 {
         ptr = ptr->next;
-
         while (ptr != NULL)
         {
-
                 if (ptr->seq == seq)
                 {
                         return ptr;
@@ -96,7 +92,7 @@ struct node *findNodeBySeq(struct node *ptr, int seq)
         return NULL;
 }
 
-/* Prints list start indexes for debugging purposes */
+// Prints list
 void printList(struct node *ptr)
 {
         if(ptr==NULL)

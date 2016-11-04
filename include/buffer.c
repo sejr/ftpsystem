@@ -1,144 +1,121 @@
-#include"rtool.h"
+// buffer.c
 
-/* Prototypes in header ^^^ */
+/* INCLUDES *******************************************************************/
 
-/* adds data to next available buffer position. returns that position */
+#include "rtool.h"
+
+/* BEGIN buffer.c *************************************************************/
+
 int AddToBuffer(char *p, struct node *temp)
 {
-	/* flag for availability of current buffer slot */
-	int ready = 0;
+        // is slot ready?
+        int ready = 0;
+        while (ready == 0) {
+                struct node *ptr;
+                ptr = (struct node *)malloc(sizeof(struct node));
+                ptr->next = NULL;
+                ptr = findNode(temp, end);
 
-	/* changes buffer index to first available acked position */
-	while (ready == 0) {
+                if (ptr != NULL) {
+                        if (ptr->ack == 1) {
+                                // current buffer slot is ready
+                                ready = 1;
+                        } else {
+                                end = (end + MSS) % CBUFFERSIZE;
+                        }
+                }
+                else {
+                        // buffer slot ready
+                        ready = 1;
+                }
+        }
 
-		/* Node to get info on current buffer slot of seq */
-		struct node *ptr;
-		ptr = (struct node *)malloc(sizeof(struct node));
-		ptr->next = NULL;
-		ptr = findNode(temp, end);
+        int slot = end;
+        cBuffer[end] = malloc(MSS);
+        bcopy(p, cBuffer[end], MSS);
+        end = (end + MSS) % CBUFFERSIZE;
+        if (active <= CBUFFERSIZE)
+        {
+                active = active + MSS;
+        } else {
+                start = (start + MSS) % CBUFFERSIZE;
+        }
 
-		if (ptr != NULL) {
-			if (ptr->ack == 1) {
-				// current buffer slot is ready
-				ready = 1;
-			} else {
-				// increment buffer slot to check in next iteration
-				end = (end + MSS) % CBUFFERSIZE;
-			}
-		}
-		else {
-			// buffer slot ready
-			ready = 1;
-		}
-	}
-
-	/* buffer slot being written to */
-	int slot = end;
-
-	/* copy data to slot */
-    cBuffer[end] = malloc(MSS);
-	bcopy(p, cBuffer[end], MSS);
-
-	/* increment slot for next call */
-    end = (end + MSS) % CBUFFERSIZE;
-
-	/* for queue functionality */
-    if (active <= CBUFFERSIZE)
-    {
-       active = active + MSS;
-    } else {
-        start = (start + MSS) % CBUFFERSIZE;
-    }
-
-	return slot;
+        return slot;
 }
 
-/* similiar to above function but omits checking auxList for availability for efficenancy purposes */
 int AddToBufferForServer(char *p)
 {
-	/* buffer slot being written to */
-	int slot = end;
+        int slot = end;
+        cBuffer[end] = malloc(MSS);
+        bcopy(p, cBuffer[end], MSS);
+        end = (end + MSS) % CBUFFERSIZE;
+        if (active <= CBUFFERSIZE)
+        {
+                active = active + MSS;
+        } else {
+                start = (start + MSS) % CBUFFERSIZE;
+        }
 
-	/* copy data to slot */
-    cBuffer[end] = malloc(MSS);
-	bcopy(p, cBuffer[end], MSS);
-
-	/* increment position for next call */
-    end = (end + MSS) % CBUFFERSIZE;
-
-	/* for queue functionality */
-    if (active <= CBUFFERSIZE)
-    {
-       active = active + MSS;
-    } else {
-        start = (start + MSS) % CBUFFERSIZE;
-    }
-
-	return slot;
+        return slot;
 }
 
-/* Function to get from buffer if used as a queue */
 char * GetFromBuffer()
 {
-    char *p;
+        char *p;
 
-    if (!active) {
-	return NULL;
-    }
+        if (!active) {
+                return NULL;
+        }
 
-    p = cBuffer[start];
-    start = (start + MSS) % CBUFFERSIZE;
+        p = cBuffer[start];
+        start = (start + MSS) % CBUFFERSIZE;
 
-    active = active - MSS;
-    return p;
+        active = active - MSS;
+        return p;
 }
 
-/* function to get data from buffer by specifying an index 0-63000 */
 char * GetFromBufferByIndex(int index)
 {
-	char *p;
+        char *p;
 
-	/* copy data to p to return */
-	p = cBuffer[index];
+        /* copy data to p to return */
+        p = cBuffer[index];
 
-	return p;
+        return p;
 }
 
-/* returns true if all slots in buffer have been acked. Checks by searching auxList */
 int cBufferReady(struct node *temp) {
-	int i = 0;
-	int acked = 0;
-	int notAcked = 0;
-	for (i = 0; i < CBUFFERSIZE; i = (i + MSS)) {
-		struct node *ptr;
-		ptr = (struct node *)malloc(sizeof(struct node));
-		ptr->next = NULL;
-		ptr = findNode(temp, i);
+        int i = 0;
+        int acked = 0;
+        int notAcked = 0;
+        for (i = 0; i < CBUFFERSIZE; i = (i + MSS)) {
+                struct node *ptr;
+                ptr = (struct node *)malloc(sizeof(struct node));
+                ptr->next = NULL;
+                ptr = findNode(temp, i);
 
-		if (ptr->ack == 0) {
-			return 0;
-		}
-	}
-	return 1;
+                if (ptr->ack == 0) {
+                        return 0;
+                }
+        }
+        return 1;
 }
 
-/* return start index */
 int getStart() {
-	return start;
+        return start;
 }
 
-/* return end index */
 int getEnd() {
-	return end;
+        return end;
 }
 
-/* Prints buffer for trouble shooting */
 void displayBuffer() {
-	int i = 0;
-	printf("\nSTATUS OF BUFFER\nFront[%d]->", start);
-	for (i = 0; i < CBUFFERSIZE; i = (i + MSS)) {
-		printf("Index: %d, Contents: %s\n", i, cBuffer[i]);
-	}
-	printf("<-[%d]Rear", end);
+        int i = 0;
+        printf("\nSTATUS OF BUFFER\nFront[%d]->", start);
+        for (i = 0; i < CBUFFERSIZE; i = (i + MSS)) {
+                printf("Index: %d, Contents: %s\n", i, cBuffer[i]);
+        }
+        printf("<-[%d]Rear", end);
 
 }

@@ -1,9 +1,22 @@
+/******************************************************************************/
+/*  NETWORK PROGRAMMING                                                       */
+/*  ------------------------------------------------------------------------- */
+/*  Lab 2: File Transfer Application (Server)                                 */
+/*  Written by Sam Roth                                                       */
+/******************************************************************************/
+
+/* HEADERS AND DEFINITIONS ****************************************************/
+
 #include "../../include/rtool.h"
+
+/* SERVER CODE ****************************************************************/
 
 int main(int argc, char* argv[]) {
 
-    	int sock;                     /* initial socket descriptor */
-    	struct sockaddr_in sin_addr, serverAck; /* structure for socket name setup */
+    	int sock;
+    	struct sockaddr_in sin_addr, serverAck;
+
+        // File info
 
     	char fileName[20] = {'\0'};
     	int fileSize = 0;
@@ -11,54 +24,68 @@ int main(int argc, char* argv[]) {
 		struct stat st = {0};
 		int ackFlag = 1;
 		char pathName[] = "recvd/";
-    	fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "FTP server initialized successfully.\n");
 
-    	/*initialize socket connection in unix domain*/
+        // Let the user know the server has started.
+
+    	fprintf(stdout,
+                COLOR_DEBUG "[ SERVER ] "
+                COLOR_RESET "FTP server initialized successfully.\n");
+
+    	// Initialize socket
+
     	if((sock = SOCKET(AF_INET, SOCK_STREAM, 0)) < 0){
     		perror("Error opening socket");
     		exit(1);
     	}
+
+        // Set up local socket
     	sin_addr.sin_family = AF_INET;
     	sin_addr.sin_port = htons(LOCALPORT);
     	sin_addr.sin_addr.s_addr = INADDR_ANY;
 
-    	/* bind socket name to socket */
-    	if(BIND(sock, (struct sockaddr *)&sin_addr, sizeof(struct sockaddr_in)) < 0) {
+    	// Bind name
+    	if(BIND(sock,(struct sockaddr *)&sin_addr,sizeof(struct sockaddr_in))<0)
+        {
       		perror("Error binding stream socket");
       		exit(1);
     	}
 
-		/* accept a connection in socket msgsocket */
-		if((ACCEPT(sock, (struct sockaddr *)NULL, (socklen_t *)NULL)) == -1) {
+		// Accept connection
+		if((ACCEPT(sock, (struct sockaddr *)NULL, (socklen_t *)NULL)) == -1)
+        {
 				perror("Error connecting stream socket");
 				exit(1);
 		}
 
-		/* address to send ack back to tcpd */
+		// Address for ack
 		bzero ((char *)&serverAck, sizeof serverAck);
 		serverAck.sin_family = AF_INET;
 		serverAck.sin_port = htons(10021);
 		serverAck.sin_addr.s_addr = inet_addr(BETA);
 
-		/* get the size of the payload */
+		// Get file size
 		if (RECV(sock, &fileSize, 4, 0, NULL, NULL) < 4) {
-			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n", "Error: The size read returned less than 4");
+			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n",
+                    "Error: The size read returned less than 4");
 			exit(1);
 		}
-		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "INCOMING FILE SIZE: %d BYTES\n", fileSize);
-		/* Send ack to tcpd */
-		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0, (struct sockaddr *)&serverAck, sizeof serverAck);
+		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET
+                "INCOMING FILE SIZE: %d BYTES\n", fileSize);
+		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0,
+               (struct sockaddr *)&serverAck, sizeof serverAck);
 
-		/* get the name of the file */
+		// Get file name
 		if (RECV(sock, fileName, sizeof(fileName), 0) < 20) {
-			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n", "Error: The name read returned less than 20");
+			fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "%s\n",
+                    "Error: The name read returned less than 20");
 			exit(1);
 		}
-		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET "INCOMING FILE NAME: %s\n", fileName);
-		/* Send ack to tcpd */
-		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0, (struct sockaddr *)&serverAck, sizeof serverAck);
+		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET
+                "INCOMING FILE NAME: %s\n", fileName);
+		sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0,
+               (struct sockaddr *)&serverAck, sizeof serverAck);
 
-		/* create a directory if one does not already exist */
+		// Create output directory
 		if (stat("recvd", &st) == -1) {
 				mkdir("recvd", 0700);
 		}
@@ -70,32 +97,38 @@ int main(int argc, char* argv[]) {
 			exit(1);
 		}
 
-		/* read the payload from the stream until the whole payload has been read */
+		// Read file from server-side tcpd
 		int amtReadTotal = 0;
 		int amtRead = 0;
 		while (amtReadTotal < fileSize) {
-				/* Receive from server side tcpd */
-				amtRead = RECV(sock, readBuffer, sizeof(readBuffer), MSG_WAITALL);
-
-				/* track byes recieved */
+				amtRead = RECV(sock,readBuffer,sizeof(readBuffer),MSG_WAITALL);
 				amtReadTotal += amtRead;
 				if (amtRead < 0) {
-					fprintf(stderr, "%s\n\n", "Error reading from the connection stream. Server terminating");
+					fprintf(stderr,
+                            "%s\n\n",
+                            "Error reading from the connection stream.
+                            Server terminating");
 					exit(1);
 				}
-				/* Send ack to tcpd */
-				sendto(sock, (char *)&ackFlag, sizeof ackFlag, 0, (struct sockaddr *)&serverAck, sizeof serverAck);
+				sendto(sock,
+                       (char *)&ackFlag,
+                       sizeof ackFlag,
+                       0,
+                       (struct sockaddr *)&serverAck,
+                       sizeof serverAck);
 
-
-				/* write the received data to the output file */
 				fwrite(readBuffer, 1, amtRead, output);
 		}
 
-		printf("RECEIVED FILE SUCCESSFULLY.\n");
+        // File transfer complete
+		fprintf(stdout, COLOR_DEBUG "[ SERVER ] " COLOR_RESET
+                "RECEIVED FILE SUCCESSFULLY.\n");
 
-		/* close the output file and connections */
+		// Close everything
 		close(sock);
 		fclose(output);
 
 		return 0;
 }
+
+/* END ftps.c *****************************************************************/
